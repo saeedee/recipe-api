@@ -43,6 +43,7 @@ public class RecipeControllerIntegrationTest {
         // Mock the service response
         when(recipeService.getAllRecipes()).thenReturn(Arrays.asList(new Recipe(), new Recipe()));
 
+        // Performs an HTTP GET request to "/recipes" endpoint and verifies the response.
         mockMvc.perform(MockMvcRequestBuilders.get("/recipes"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -56,6 +57,7 @@ public class RecipeControllerIntegrationTest {
         // Mock the service response
         when(recipeService.getRecipe(recipe.getId())).thenReturn(recipe);
 
+        // Performs an HTTP GET request to "/recipes/{id}" endpoint and verifies the response.
         mockMvc.perform(MockMvcRequestBuilders.get("/recipes/{id}", recipe.getId()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.id").value(recipe.getId().intValue()));
@@ -68,6 +70,7 @@ public class RecipeControllerIntegrationTest {
         // Mock the service response
         when(recipeService.createRecipe(any())).thenReturn(createdRecipe);
 
+        // Performs an HTTP POST request to "/recipes" endpoint and verifies the response.
         mockMvc.perform(MockMvcRequestBuilders.post("/recipes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createdRecipe)))
@@ -82,11 +85,13 @@ public class RecipeControllerIntegrationTest {
         // Create Recipe
         Recipe recipe = getCreatedRecipe();
 
+        // Performs an HTTP PUT request to "/recipes/{id}" endpoint.
         mockMvc.perform(MockMvcRequestBuilders.put("/recipes/{id}", recipe.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(recipe)))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
 
+        // Verifying that the service method was called
         verify(recipeService, times(1)).updateRecipe(eq(recipe.getId()), any(Recipe.class));
     }
 
@@ -95,9 +100,11 @@ public class RecipeControllerIntegrationTest {
         // Set recipeId
         Long recipeId = 1L;
 
+        // Performs an HTTP DELETE request to "/recipes/{id}" endpoint.
         mockMvc.perform(MockMvcRequestBuilders.delete("/recipes/{id}", recipeId))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
 
+        // Verifying that the service method was called
         verify(recipeService, times(1)).deleteRecipe(eq(recipeId));
     }
 
@@ -106,12 +113,17 @@ public class RecipeControllerIntegrationTest {
         // Mock the service response
         when(recipeService.searchRecipe(any(), any(), any(), any(), any())).thenReturn(Arrays.asList(new Recipe(), new Recipe()));
 
+        // Performs an HTTP GET request to "/recipes/search" endpoint and verifies the response.
         mockMvc.perform(MockMvcRequestBuilders.get("/recipes/search"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isNotEmpty());
     }
 
+    /**
+     * Create Ingredient
+     * @return the list of ingredients
+     */
     private static List<Ingredient> getIngredients() {
         List<Ingredient> inputIngredients = new ArrayList<>();
         Ingredient ingredient = new Ingredient();
@@ -119,6 +131,11 @@ public class RecipeControllerIntegrationTest {
         inputIngredients.add(ingredient);
         return inputIngredients;
     }
+
+    /**
+     *  Create Recipe
+     * @return the recipe
+     */
     private static Recipe getCreatedRecipe() {
         Recipe createdRecipe = new Recipe();
         createdRecipe.setId(1L);

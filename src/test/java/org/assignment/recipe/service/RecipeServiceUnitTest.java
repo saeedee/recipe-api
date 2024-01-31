@@ -44,7 +44,7 @@ public class RecipeServiceUnitTest {
         // Mocking repository behavior
         when(recipeRepository.findAll()).thenReturn(Arrays.asList(new Recipe(), new Recipe()));
 
-        // Calling the service method
+        // Calling the get all recipes service
         List<Recipe> recipes = recipeService.getAllRecipes();
 
         // Verifying that the repository method was called
@@ -56,20 +56,22 @@ public class RecipeServiceUnitTest {
 
     @Test
     public void testGetRecipeById() {
-        // Mocking repository behavior
-        Recipe expectedRecipe = new Recipe();  // Create a sample Recipe
+        // create recipe
+        Recipe expectedRecipe = new Recipe();
         expectedRecipe.setId(1L);
-        when(recipeRepository.findById(1L)).thenReturn(Optional.of(expectedRecipe));
 
-        // Calling the service method
+        // Mocking repository behavior
+        when(recipeRepository.findById(expectedRecipe.getId())).thenReturn(Optional.of(expectedRecipe));
+
+        // Calling the get recipe service
         Recipe actualRecipe = recipeService.getRecipe(1L);
 
         // Verifying that the repository method was called
         verify(recipeRepository, times(1)).findById(1L);
 
         // Asserting the result
-        assertNotNull(actualRecipe);  // Ensure that a recipe is present
-        assertEquals(expectedRecipe.getId(), actualRecipe.getId());  // Ensure that the expected and actual recipes match
+        assertNotNull(actualRecipe);
+        assertEquals(expectedRecipe.getId(), actualRecipe.getId());
     }
 
     @Test
@@ -100,15 +102,18 @@ public class RecipeServiceUnitTest {
         inputIngredients.add(ingredient1);
         inputRecipe.setIngredients(inputIngredients);
 
+        // Mocking repository behavior
         when(ingredientRepository.findByName(eq("ingredient1"))).thenReturn(Optional.of(ingredient1));
         when(recipeRepository.save(any())).thenReturn(inputRecipe);
 
         // Calling the create method
         Recipe createdRecipe = recipeService.createRecipe(inputRecipe);
 
+        // Verifying that following repositories methods were called
         verify(ingredientRepository, times(1)).findByName(eq("ingredient1"));
         verify(recipeRepository, times(1)).save(any());
 
+        // Asserting the result
         assertNotNull(createdRecipe.getId());
         assertNotNull(createdRecipe.getIngredients());
         assertEquals(inputIngredients.size(), createdRecipe.getIngredients().size());
@@ -138,6 +143,7 @@ public class RecipeServiceUnitTest {
         existingRecipe.setIngredients(inputIngredients);
         updatedRecipe.setIngredients(inputIngredients);
 
+        // Mocking repository behavior
         when(recipeRepository.findById(existingRecipeId)).thenReturn(Optional.of(existingRecipe));
         when(ingredientRepository.findByName(eq("ingredient1"))).thenReturn(Optional.of(ingredient1));
         when(recipeRepository.save(any())).thenReturn(updatedRecipe);
@@ -146,7 +152,7 @@ public class RecipeServiceUnitTest {
         recipeService.updateRecipe(existingRecipeId, updatedRecipe);
 
 
-        // Verifying that following methods was called
+        // Verifying that following repositories methods were called
         verify(recipeRepository, times(1)).findById(existingRecipeId);
         verify(ingredientRepository, times(1)).findByName(eq("ingredient1"));
         verify(recipeRepository, times(1)).save(any(Recipe.class));
@@ -166,15 +172,14 @@ public class RecipeServiceUnitTest {
         existingRecipe.setServingNumber(2);
         existingRecipe.setInstruction("Existing Instruction");
 
+        // Mocking repository behavior
         when(recipeRepository.findById(existingRecipeId)).thenReturn(Optional.of(existingRecipe));
 
         // Calling the service method
         recipeService.deleteRecipe(existingRecipeId);
 
-        // Verifying that the findById method of recipeRepository was called
+        // Verifying that following repositories methods were called
         verify(recipeRepository, times(1)).findById(existingRecipeId);
-
-        // Verifying that the deleteById method of recipeRepository was called with the correct ID
         verify(recipeRepository, times(1)).deleteById(existingRecipeId);
     }
 
